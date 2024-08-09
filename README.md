@@ -14,22 +14,26 @@ The project consists of the following files:
     - These data were obtained from Drewery CFR Insight reports.
 - oca_data_prep.ipynb
     - a Jupyter notebook that cleans and prepares the various data files for analysis. 
-- oca_analysis.ipynb
-    - a Jupyter notebook containing models and other analysis of the data. 
+- oca_analyse_usda.ipynb
+    - a Jupyter notebook containing summary statistics, models, and other analyses of the data for the USDA report. 
 - this README.md
 
 Current versions of the notebooks and README can be found at on the github repo. 
 
 ### Python Environment and Libraries
 
-All files were written in Python 3.12, and the following libraries are used:
-- polars v0.20.18 
+All files were written in Python 3.12.0, and the following libraries are used:
+- polars v1.1.0 
 - numpy v1.26.2
 - pandas v2.1.3
 - plotly_express v0.4.1
 - scikit-learn v1.3.2
+- statsmodels 0.14.1
+- geopy 2.4.1
 
 ## Data Challenges
+
+### PIERS Data
 
 Although the PIERS BOL database is extensive, covering the entirety of maritime containerized cargo that crossed the US border since 2005, the dataset comes with signficant challenges. 
 - The most siginficant hurdle lines in the fact that volumes (TEUs, weight, and quantity) are entirely absent from the data prior to ~2015. 
@@ -38,21 +42,22 @@ Although the PIERS BOL database is extensive, covering the entirety of maritime 
 - We have not been able to determine a sensible way of associating the various description columns with other metrics. For example, the commodity descriptions sometimes describe 4 different commodities, but the volume column for that bill contains 3 volume metrics. 
     - this is also an open question to S&P
     - for now, we split the total TEUs for each bill evenly across the listed commodity codes. 
-- According to S&P, the date columns 
+- According to S&P, the date column contains the arrival date of the vessel in port; however, the actual data data are not consistent with this understanding, as BOLs showing the same vessel and lane data sometimes occur 1-5 days apart, even on lanes that take weeks to travel. 
+    - we address this inconsistency by applying an HDBSCAN algorithm to cluster the dates together
+    - this allows us to accurately analyze how many times a ship visits a given port and how many total voyages are offered from that port in a given time frame - an important metric of service quality in shipping. 
 
-## Model
+### Other Data Sources
 
-The initial model for the project inspects the effects of carrier alliances on frequency of service. We estimate this using the following equation:
+Data from Drewery's CFRI reports are processed via the [PDF Data Processing Project](https://github.com/epistemetrica/PDF-data-processing). At the moment, only the 2015–2023 reports are interpretable by the scripts in that project. Future efforts may pull rate data from older reports, but for the time being we analyze rates only where available. 
 
-$$ S_{ijct} = b X_{ijct} + a_1 AM_{ct}PC_{ijc} + a_2 AM_{ct} + a_3 PC_{ijc} + \epsilon_{ijct} $$
+Vessel capacity data from the [US Army Corp of Engineers](https://ndclibrary.sec.usace.army.mil/searchResults?series=Foreign%20Traffic%20Vessel%20Entrances%20Clearances) are clean and extensive, but only cover the 2013–2022 time period. Many ships, of course, were in service before and after that time period, but vessel capacities are increasingly missing as time moves outside that window. 
 
-where:
-- $i$ is the departure port
-- $j$ is the arrival port
-- $c$ is the carrier
-- $t$ is the time period, which we aggregate to months (e.g., May 2019)
-- $S$ is the frequency of service, i.e. the number of voyages provided to that lane by the carrier in the given month. 
-- $X$ are the correction variables
-- $AM$ is an indicator of whether or not the carrier is part of an alliance
-- $PC$ is an indicator of whether or not the lane was serviced by that carrier before the alliance took effect. 
+## Project Deliverables
+
+1. Transportation Review Board (TRB) Report 
+    - The initial report for this project was submitted to the TRB on Aug 1 2024. TRBAM-25-05784. 
+2. USDA Report 
+    - this is the primary deliverable to satisfy the grant with which this work is funded, and investigates the effects of OCAs on containerized US agricultural exports.
+3. Journal Submission
+    - the final deliverable will be a submission to a peer-reviewed journal; the exact form and content is still under development. 
 

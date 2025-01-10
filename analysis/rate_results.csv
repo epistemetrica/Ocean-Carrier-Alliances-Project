@@ -1,0 +1,11 @@
+,Rate,Rate
+TEUs,0.00404,-
+HHI on lane ij,-0.00488,-0.00516
+HHI on substitute lanes -ij,0.0251***,0.0249***
+HHI at origin port i,0.0358*,0.0349*
+HHI at dest port j,0.0139*,0.014*
+HHI on substitute origin ports -i,-0.00577*,-0.0056*
+HHI on substitute dest ports -j,-0.0193**,-0.0195**
+N,"3,491","3,491"
+DF Resid,"3,340","3,341"
+R2,0.839,0.839
